@@ -26,9 +26,11 @@ Issues_outside_airline_control = PromptTemplate(
 )
 
 positive_experience_template = PromptTemplate(
-    template="""If the text below shares a good experience, reply with an appreciation message thanking the user for their time.\n\nText: {text}""",
+    template="""If the text below shares a good experience, reply with a warm and heartfelt thank-you message. 
+    For example, say something like "Thank you for sharing your wonderful experience with us! We're thrilled to hear you had a great time, and it means so much to know we could be part of your journey. Safe travels and we look forward to welcoming you onboard again!"\n\nText: {text}""",
     input_variables=["text"]
 )
+
 
 llm = ChatOpenAI(api_key=openai.api_key, model="gpt-3.5-turbo")
 
