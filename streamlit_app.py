@@ -63,7 +63,6 @@ if st.button("Submit Feedback"):
                 if response:
                     st.write(response)
                 else:
-                    # Default message if no specific response
                     st.write("Thank you for your feedback.")
     else:
         st.write("Please enter your experience.")
