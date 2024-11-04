@@ -54,16 +54,16 @@ if st.button("Submit Feedback"):
         if response:
             st.write(response)
         else:
-                response = outside_airline_control_response_chain.run({"text": user_prompt}).strip()
+            response = outside_airline_control_response_chain.run({"text": user_prompt}).strip()
 
-                if response:
-                    st.write(response)
+            if response:
+                st.write(response)
             else:
                 response = positive_experience_response_chain.run({"text": user_prompt}).strip()
 
                 if response:
                     st.write(response)
                 else:
-                        st.write("Thank you for your feedback.")
+                    st.write("Thank you for your feedback.")
     else:
         st.write("Please enter your experience.")
