@@ -26,8 +26,8 @@ Issues_outside_airline_control = PromptTemplate(
 )
 
 positive_experience_template = PromptTemplate(
-    template="""If the text below shares a good experience, reply with a warm and heartfelt thank-you message. 
-    For example, say something like "Thank you for sharing your wonderful experience with us! We're thrilled to hear you had a great time, and it means so much to know we could be part of your journey. Safe travels and we look forward to welcoming you onboard again!"\n\nText: {text}""",
+    template="""The following text describes a positive experience with our airline. Generate a warm, friendly response that thanks the customer sincerely for their feedback and expresses our delight in having made their journey enjoyable.\n
+    For example, you might say: "Thank you so much for sharing your positive experience with us! We're delighted to hear you had a great journey. We look forward to welcoming you back on board in the future and wish you many more pleasant travels!"\n\nText: {text}""",
     input_variables=["text"]
 )
 
