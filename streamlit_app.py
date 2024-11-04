@@ -6,8 +6,15 @@ from langchain.chains import LLMChain
 from langchain_core.output_parsers import StrOutputParser
 from langchain.chat_models import ChatOpenAI
 
+# https://api.python.langchain.com/en/latest/output_parsers/langchain_core.output_parsers.string.StrOutputParser.html
+
+
 st.title("Tell us about your travel.")
 os.environ["OPENAI_API_KEY"] = st.secrets["OpenAIkey"]
+
+# https://medium.com/data-professor/beginners-guide-to-openai-api-a0420bc58ee5
+# https://github.com/elhamod/openaistreamlit/blob/main/streamlit_app.py
+# https://python.langchain.com/api_reference/core/prompts/langchain_core.prompts.prompt.PromptTemplate.html
 
 user_prompt = st.text_area("Tell us about your latest flight experience?")
 
@@ -56,3 +63,5 @@ if st.button("Submit Feedback"):
         st.write(response)
     else:
         st.write("Please enter your experience.")
+        
+# https://github.com/langchain-ai/langchain/issues/1438
