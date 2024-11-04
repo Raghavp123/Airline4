@@ -1,6 +1,7 @@
 import streamlit as st
 import openai
 import os
+# https://python.langchain.com/api_reference/langchain/chains/langchain.chains.llm.LLMChain.html
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain_core.output_parsers import StrOutputParser
@@ -35,9 +36,11 @@ positive_experience_template = PromptTemplate(
     "Thank you for sharing your positive experience with us! We're delighted to hear you enjoyed your journey, and we look forward to serving you again soon!"\n\nText: {text}""",
     input_variables=["text"]
 )
-
+# https://medium.com/data-professor/beginners-guide-to-openai-api-a0420bc58ee5
 llm = ChatOpenAI(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-3.5-turbo")
 
+# https://github.com/langchain-ai/langchain/discussions/11253
+# https://stackoverflow.com/questions/78355357/llm-prompt-chain-does-not-behave-as-expected
 airline_issue_response_chain = LLMChain(
     llm=llm, prompt=airline_related_issue_negative, output_parser=StrOutputParser()
 )
@@ -49,7 +52,9 @@ outside_airline_control_response_chain = LLMChain(
 positive_experience_response_chain = LLMChain(
     llm=llm, prompt=positive_experience_template, output_parser=StrOutputParser()
 )
-
+# https://docs.streamlit.io/develop/concepts/design/buttons
+# https://stackoverflow.com/questions/74003574/how-to-create-a-button-with-hyperlink-in-streamlit
+# https://docs.streamlit.io/develop/api-reference/widgets/st.link_button
 if st.button("Submit Feedback"):
     if user_prompt:
         response = positive_experience_response_chain.run({"text": user_prompt}).strip()
