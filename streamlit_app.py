@@ -2,9 +2,9 @@ import streamlit as st
 import openai
 import os
 from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
+from langchain_community.chains import RunnableSequence  # Use this in place of LLMChain
 from langchain_core.output_parsers import StrOutputParser
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 
 st.title("Tell us about your travel.")
 os.environ["OPENAI_API_KEY"] = st.secrets["OpenAIkey"]
@@ -31,35 +31,28 @@ positive_experience_template = PromptTemplate(
     input_variables=["text"]
 )
 
+# Initialize the model
 llm = ChatOpenAI(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-3.5-turbo")
 
-# Different response chains
-airline_issue_response_chain = LLMChain(
-    llm=llm, prompt=airline_related_issue_negative, output_parser=StrOutputParser()
-)
-
-outside_airline_control_response_chain = LLMChain(
-    llm=llm, prompt=issues_outside_airline_control, output_parser=StrOutputParser()
-)
-
-positive_experience_response_chain = LLMChain(
-    llm=llm, prompt=positive_experience_template, output_parser=StrOutputParser()
-)
+# Define response sequences
+airline_issue_response_sequence = airline_related_issue_negative | llm | StrOutputParser()
+outside_airline_control_response_sequence = issues_outside_airline_control | llm | StrOutputParser()
+positive_experience_response_sequence = positive_experience_template | llm | StrOutputParser()
 
 # Generate and display responses
 if st.button("Submit Feedback"):
     if user_prompt:
-        response = airline_issue_response_chain.run({"text": user_prompt}).strip()
+        response = airline_issue_response_sequence.run({"text": user_prompt}).strip()
 
         if response:
             st.write(response)
         else:
-            response = outside_airline_control_response_chain.run({"text": user_prompt}).strip()
+            response = outside_airline_control_response_sequence.run({"text": user_prompt}).strip()
 
             if response:
                 st.write(response)
             else:
-                response = positive_experience_response_chain.run({"text": user_prompt}).strip()
+                response = positive_experience_response_sequence.run({"text": user_prompt}).strip()
 
                 if response:
                     st.write(response)
