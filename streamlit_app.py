@@ -8,14 +8,10 @@ from langchain.chat_models import ChatOpenAI
 
 
 st.title("Share your Travel Experience")
-
-# User input for travel experience
-user_prompt = st.text_area("What is your latest travel experience?")
-
 os.environ["OPENAI_API_KEY"] = st.secrets["OpenAIkey"]
 
-# different types of responses(3)
 
+user_prompt = st.text_area("What is your latest travel experience?")
 
 negative_caused_by_the_airline_template = PromptTemplate(
     template="""If the text below describes a negative experience due to an airline issue, 
