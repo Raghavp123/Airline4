@@ -30,7 +30,7 @@ positive_experience_template = PromptTemplate(
     input_variables=["text"]
 )
 
-llm = ChatOpenAI(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-4")
+llm = ChatOpenAI(api_key=openai.api_key, model="gpt-3.5-turbo")
 
 # Different responses
 airline_issue_response_chain = LLMChain(
