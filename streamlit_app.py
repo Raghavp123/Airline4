@@ -11,14 +11,14 @@ os.environ["OPENAI_API_KEY"] = st.secrets["OpenAIkey"]
 
 user_prompt = st.text_area("Tell us about your latest flight experience?")
 
-Airline_related_issue_negative = PromptTemplate(
+airline_related_issue_negative = PromptTemplate(
     template="""If the text below talks about a bad experience because of an airline problem, 
     reply with a message saying you’re sorry and that customer service will reach out to help. 
     If it doesn’t, don’t reply.\n\nText: {text}""",
     input_variables=["text"]
 )
 
-Issues_outside_airline_control = PromptTemplate(
+issues_outside_airline_control = PromptTemplate(
     template="""If the text below talks about a bad experience not caused by the airline (like a bad food), 
     respond with a kind message, 
     explaining that the airline isn’t responsible.\n\nText: {text}""",
@@ -26,26 +26,27 @@ Issues_outside_airline_control = PromptTemplate(
 )
 
 positive_experience_template = PromptTemplate(
-    template="""If the text below shares a good experience, reply with an appreciation message thanking the user for their time.\n\nText: {text}""",
+    template="""If the text below shares a good experience, reply with a warm thank-you message. For example:
+    "Thank you so much for sharing your positive experience with us! We’re delighted to know that you enjoyed your journey, and we look forward to welcoming you on board again soon!"\n\nText: {text}""",
     input_variables=["text"]
 )
 
-llm = ChatOpenAI(api_key=openai.api_key, model="gpt-3.5-turbo")
+llm = ChatOpenAI(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-3.5-turbo")
 
-# Different responses
+# Different response chains
 airline_issue_response_chain = LLMChain(
-    llm=llm, prompt=Airline_related_issue_negative, output_parser=StrOutputParser()
+    llm=llm, prompt=airline_related_issue_negative, output_parser=StrOutputParser()
 )
 
 outside_airline_control_response_chain = LLMChain(
-    llm=llm, prompt=Issues_outside_airline_control, output_parser=StrOutputParser()
+    llm=llm, prompt=issues_outside_airline_control, output_parser=StrOutputParser()
 )
 
 positive_experience_response_chain = LLMChain(
     llm=llm, prompt=positive_experience_template, output_parser=StrOutputParser()
 )
 
-# Give a reply based on the user’s input
+# Generate and display responses
 if st.button("Submit Feedback"):
     if user_prompt:
         response = airline_issue_response_chain.run({"text": user_prompt}).strip()
@@ -63,7 +64,6 @@ if st.button("Submit Feedback"):
                 if response:
                     st.write(response)
                 else:
-                    # Default message if no specific response
                     st.write("Thank you for your feedback.")
     else:
         st.write("Please enter your experience.")
