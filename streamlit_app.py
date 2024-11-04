@@ -33,7 +33,7 @@ positive_experience_template = PromptTemplate(
 
 llm = ChatOpenAI(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-3.5-turbo")
 
-# Different response chains
+# Different responses
 airline_issue_response_chain = LLMChain(
     llm=llm, prompt=airline_related_issue_negative, output_parser=StrOutputParser()
 )
@@ -58,12 +58,12 @@ if st.button("Submit Feedback"):
 
             if response:
                 st.write(response)
-            else:
-                response = positive_experience_response_chain.run({"text": user_prompt}).strip()
+        else:
+            response = positive_experience_response_chain.run({"text": user_prompt}).strip()
 
-                if response:
-                    st.write(response)
-                else:
-                    st.write("Thank you for your feedback.")
+            if response:
+                st.write(response)
+        else:
+                st.write("Thank you for your feedback.")
     else:
         st.write("Please enter your experience.")
