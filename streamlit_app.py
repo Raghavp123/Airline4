@@ -7,66 +7,64 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain.chat_models import ChatOpenAI
 
 
-st.title("Share your Travel Experience") --
+st.title("Tell us about your travel.")
 os.environ["OPENAI_API_KEY"] = st.secrets["OpenAIkey"]
 
 
-user_prompt = st.text_area("What is your latest travel experience?") --
+user_prompt = st.text_area("Tell us about your latest fight experience?")
 
-negative_caused_by_the_airline_template = PromptTemplate( -- -- <<Same as above 3 variable>>>
-    template="""If the text below describes a negative experience due to an airline issue, --
-    generate a response offering sympathies and mentioning customer service will follow up. --
-    Otherwise, say nothing.\n\nText: {text}""",
+Airline-related_issue_negative = PromptTemplate(
+    template="""If the text below talks about a bad experience because of an airline problem, 
+    reply with a message saying you’re sorry and that customer service will reach out to help. 
+    If it doesn’t, don’t reply..\n\nText: {text}""",
     input_variables=["text"]
 )
 
-negative_beyond_airline_control_template = PromptTemplate( -- -- <<Same as above 3 variable>>>
-    template="""If the text below describes a negative experience not due to an airline (e.g., weather-related delay), --
-    respond with a sympathetic message, but explain that the airline is not liable.\n\nText: {text}""", --
+Issues outside airline control = PromptTemplate( 
+    template="""If the text below talks about a bad experience not caused by the airline (like a bad food), 
+    respond with a kind message, 
+    explaining that the airline isn’t responsible..\n\nText: {text}""", 
     input_variables=["text"]
 )
 
-positive_experience_template = PromptTemplate( ---- <<Same as above 3 variable>>>
-    template="""If the text below describes a positive experience, respond with a thank-you message.\n\nText: {text}""", --
-    input_variables=["text"]
+positive_experience = PromptTemplate( 
+    template="""If the text below shares a good experience, reply with a appreciate your time, 
+    thank-you message .=["text"]
 )
 
-
-
-# OpenAI model--
 llm = ChatOpenAI(api_key=api_key, model="gpt-4")
 # llm = ChatOpenAI(api_key=openai.api_key, model="gpt-3.5-turbo") --<<<<DELETE>>>>>
 
-# 3 chains
-negative_caused_by_the_airline_chain = LLMChain(
-    llm=llm, prompt=negative_caused_by_the_airline_template, output_parser=StrOutputParser()-- <<Same as above 3 variable>>>
+# Different responses
+airline_issue_response_chain = LLMChain(
+    llm=llm, prompt=Airline-related_issue_negative, output_parser=StrOutputParser()
 )
 
-negative_beyond_airline_control_chain = LLMChain(
-    llm=llm, prompt=negative_beyond_airline_control_template, output_parser=StrOutputParser()-- <<Same as above 3 variable>>>
+outside_airline_control_response_chain = LLMChain(
+    llm=llm, prompt=Issues outside airline control, output_parser=StrOutputParser()
 )
 
-positive_experience_chain = LLMChain(
-    llm=llm, prompt=positive_experience_template, output_parser=StrOutputParser()-- <<Same as above 3 variable>>>
+positive_experience = LLMChain(
+    llm=llm, prompt=positive_experience, output_parser=StrOutputParser()
 )
 
-# Based on user's input, provide a response --
+# Give a reply based on the user’s input
 if st.button("Submit Feedback"):
     if user_prompt:
       
-        response = negative_caused_by_the_airline_chain.run({"text": user_prompt}).strip()
+        response = airline_issue_response_chain.run({"text": user_prompt}).strip()
 
         if response:
             st.write(response)
         else:
     
-            response = negative_beyond_airline_control_chain.run({"text": user_prompt}).strip()
+            response = outside_airline_control_response_chain.run({"text": user_prompt}).strip()
 
             if response:
                 st.write(response)
             else:
   
-                response = positive_experience_chain.run({"text": user_prompt}).strip()
+                response = positive_experience.run({"text": user_prompt}).strip()
 
                 if response:
                     st.write(response)
