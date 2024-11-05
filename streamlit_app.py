@@ -1,11 +1,19 @@
 import streamlit as st
 import openai
 import os
+
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
+
+# https://python.langchain.com/api_reference/core/output_parsers/langchain_core.output_parsers.string.StrOutputParser.html
+
 from langchain_core.output_parsers import StrOutputParser
 from langchain.chat_models import ChatOpenAI
 from langchain_core.runnables import RunnableBranch
+
+# https://github.com/elhamod/openaistreamlit/blob/main/streamlit_app.py
+# https://python.langchain.com/api_reference/core/prompts/langchain_core.prompts.prompt.PromptTemplate.html
+# https://medium.com/data-professor/beginners-guide-to-openai-api-a0420bc58ee5
 
 st.title("Tell us about your travel.")
 os.environ["OPENAI_API_KEY"] = st.secrets["OpenAIkey"]
@@ -31,6 +39,8 @@ positive_experience_template = PromptTemplate(
 )
 
 llm = ChatOpenAI(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-3.5-turbo")
+# https://github.com/langchain-ai/langchain/issues/1438
+# https://api.python.langchain.com/en/latest/output_parsers/langchain_core.output_parsers.string.StrOutputParser.html
 
 # Chains for each type of response
 airline_issue_response_chain = LLMChain(
@@ -44,19 +54,20 @@ outside_airline_control_response_chain = LLMChain(
 positive_experience_response_chain = LLMChain(
     llm=llm, prompt=positive_experience_template, output_parser=StrOutputParser()
 )
-
-# Routing logic based on keywords in the user prompt
+# https://medium.com/@twjjosiah/chain-loops-in-langchain-expression-language-lcel-a38894db0cee
+#  routing logic based on keywords in the user prompt
+# routing based on keywords in the user prompt
 branch = RunnableBranch(
     (lambda x: any(word in x["text"].lower() for word in ["good", "pleasant", "fantastic", "positive"]), positive_experience_response_chain),
     (lambda x: any(word in x["text"].lower() for word in ["delay", "lost", "service", "airline"]), airline_issue_response_chain),
     outside_airline_control_response_chain  
 )
 
-# Generate response based on the user input
+# response based on the user input
 if st.button("Submit Feedback"):
     if user_prompt:
-        result = branch.invoke({"text": user_prompt})  # Get the result as a dictionary
-        response = result.get("text", "").strip()      # Extract the response text and apply .strip()
+        result = branch.invoke({"text": user_prompt})  
+        response = result.get("text", "").strip()  
         st.write(response)
     else:
         st.write("Please enter your experience.")
