@@ -1,21 +1,14 @@
 import streamlit as st
 import openai
 import os
-# https://python.langchain.com/api_reference/langchain/chains/langchain.chains.llm.LLMChain.html
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain_core.output_parsers import StrOutputParser
 from langchain.chat_models import ChatOpenAI
-
-# https://api.python.langchain.com/en/latest/output_parsers/langchain_core.output_parsers.string.StrOutputParser.html
-
+from langchain_core.runnables import RunnableBranch
 
 st.title("Tell us about your travel.")
 os.environ["OPENAI_API_KEY"] = st.secrets["OpenAIkey"]
-
-# https://medium.com/data-professor/beginners-guide-to-openai-api-a0420bc58ee5
-# https://github.com/elhamod/openaistreamlit/blob/main/streamlit_app.py
-# https://python.langchain.com/api_reference/core/prompts/langchain_core.prompts.prompt.PromptTemplate.html
 
 user_prompt = st.text_area("Tell us about your latest flight experience?")
 
@@ -36,11 +29,10 @@ positive_experience_template = PromptTemplate(
     "Thank you for sharing your positive experience with us! We're delighted to hear you enjoyed your journey, and we look forward to serving you again soon!"\n\nText: {text}""",
     input_variables=["text"]
 )
-# https://medium.com/data-professor/beginners-guide-to-openai-api-a0420bc58ee5
+
 llm = ChatOpenAI(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-3.5-turbo")
 
-# https://github.com/langchain-ai/langchain/discussions/11253
-# https://stackoverflow.com/questions/78355357/llm-prompt-chain-does-not-behave-as-expected
+# Chains for each type of response
 airline_issue_response_chain = LLMChain(
     llm=llm, prompt=airline_related_issue_negative, output_parser=StrOutputParser()
 )
@@ -52,21 +44,18 @@ outside_airline_control_response_chain = LLMChain(
 positive_experience_response_chain = LLMChain(
     llm=llm, prompt=positive_experience_template, output_parser=StrOutputParser()
 )
-# https://docs.streamlit.io/develop/concepts/design/buttons
-# https://stackoverflow.com/questions/74003574/how-to-create-a-button-with-hyperlink-in-streamlit
-# https://docs.streamlit.io/develop/api-reference/widgets/st.link_button
+
+#  routing logic based on keywords in the user prompt
+branch = RunnableBranch(
+    (lambda x: any(word in x["text"].lower() for word in ["good", "pleasant", "fantastic", "positive"]), positive_experience_response_chain),
+    (lambda x: any(word in x["text"].lower() for word in ["delay", "lost", "service", "airline"]), airline_issue_response_chain),
+    outside_airline_control_response_chain  # Default case if other conditions don't match
+)
+
+#  response based on the user input
 if st.button("Submit Feedback"):
     if user_prompt:
-        response = positive_experience_response_chain.run({"text": user_prompt}).strip()
-        
-        if not response:
-            response = airline_issue_response_chain.run({"text": user_prompt}).strip()
-            
-            if not response:
-                response = outside_airline_control_response_chain.run({"text": user_prompt}).strip()
-
+        response = branch.invoke({"text": user_prompt}).strip()
         st.write(response)
     else:
         st.write("Please enter your experience.")
-        
-# https://github.com/langchain-ai/langchain/issues/1438
