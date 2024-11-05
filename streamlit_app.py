@@ -45,17 +45,18 @@ positive_experience_response_chain = LLMChain(
     llm=llm, prompt=positive_experience_template, output_parser=StrOutputParser()
 )
 
-#  routing logic based on keywords in the user prompt
+# Routing logic based on keywords in the user prompt
 branch = RunnableBranch(
     (lambda x: any(word in x["text"].lower() for word in ["good", "pleasant", "fantastic", "positive"]), positive_experience_response_chain),
     (lambda x: any(word in x["text"].lower() for word in ["delay", "lost", "service", "airline"]), airline_issue_response_chain),
     outside_airline_control_response_chain  
 )
 
-#  response based on the user input
+# Generate response based on the user input
 if st.button("Submit Feedback"):
     if user_prompt:
-        response = branch.invoke({"text": user_prompt}).strip()
+        result = branch.invoke({"text": user_prompt})  # Get the result as a dictionary
+        response = result.get("text", "").strip()      # Extract the response text and apply .strip()
         st.write(response)
     else:
         st.write("Please enter your experience.")
