@@ -49,7 +49,7 @@ positive_experience_response_chain = LLMChain(
 branch = RunnableBranch(
     (lambda x: any(word in x["text"].lower() for word in ["good", "pleasant", "fantastic", "positive"]), positive_experience_response_chain),
     (lambda x: any(word in x["text"].lower() for word in ["delay", "lost", "service", "airline"]), airline_issue_response_chain),
-    outside_airline_control_response_chain  # Default case if other conditions don't match
+    outside_airline_control_response_chain  
 )
 
 #  response based on the user input
